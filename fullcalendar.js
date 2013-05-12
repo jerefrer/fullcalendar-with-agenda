@@ -689,8 +689,6 @@ function Calendar(element, options, eventSources) {
 function Header(calendar, options) {
   var t = this;
   
-  var buttonsRightRendered;   // added by Paul Wolbers 5-5-2012
-  
   // exports
   t.render = render;
   t.destroy = destroy;
@@ -727,74 +725,71 @@ function Header(calendar, options) {
     element.remove();
   }
 
-  // function added by Paul Wolbers 5-5-2012
-  function addAgendaOverviewButton(tm, e) {
-    var button = $(
-      "<span class='fc-button fc-button-paul " + tm + "-state-default'>" +
-        "<span class='fc-button-inner'>" +
-          "<span class='fc-button-content'>Agenda</span>" +
-          "<span class='fc-button-effect'><span></span></span>" +
-        "</span>" +
-      "</span>"
-    );
-    if (button) {
-      button
-        .click(function() {
-          if (!button.hasClass(tm + '-state-disabled')) {
-            //buttonClick();
-            $('.fc-button-month').removeClass('fc-state-active');
-            $('.fc-button-agendaWeek').removeClass('fc-state-active');
-            $('.fc-button-agendaDay').removeClass('fc-state-active');
+ // function added by Paul Wolbers 5-5-2012
+	function addAgendaOverviewButton(tm, e) {
+		var button = $(
+			"<span class='fc-button fc-button-paul " + tm + "-state-default'>" +
+				"<span class='fc-button-inner'>" +
+					"<span class='fc-button-content'>agenda</span>" +
+					"<span class='fc-button-effect'><span></span></span>" +
+				"</span>" +
+			"</span>"
+		);
+		if (button) {
+			button
+				.click(function() {
+					if (!button.hasClass(tm + '-state-disabled')) {
+						//buttonClick();
+						$('.fc-button-month').removeClass('fc-state-active');
+						$('.fc-button-agendaWeek').removeClass('fc-state-active');
+						$('.fc-button-agendaDay').removeClass('fc-state-active');
 
-            button.addClass('fc-state-active');
-            $('.fc-content').hide();
-            $('.fc-content-paul').show();
-            $('.fc-content-paul').css('height','650px');
-            $('.fc-content-paul').load(options.agendaUrl, function() {
+						button.addClass('fc-state-active');
+						$('.fc-content').hide();
+						$('.fc-content-paul').show();
+						$('.fc-content-paul').css('height','650px');
+						updateTitle('Agenda');
+						$('.fc-header-left').hide();
+					}
+				})
+				.mousedown(function() {
+					button
+						.not('.' + tm + '-state-active')
+						.not('.' + tm + '-state-disabled')
+						.addClass(tm + '-state-down');
+				})
+				.mouseup(function() {
+					button.removeClass(tm + '-state-down');
+				})
+				.hover(
+					function() {
+						button
+							.not('.' + tm + '-state-active')
+							.not('.' + tm + '-state-disabled')
+							.addClass(tm + '-state-hover');
+					},
+					function() {
+						button
+							.removeClass(tm + '-state-hover')
+							.removeClass(tm + '-state-down');
+					}
+				)
+				.appendTo(e);
 
-            });
-            updateTitle('Agenda');
-            $('.fc-header-left').hide();
-          }
-        })
-        .mousedown(function() {
-          button
-            .not('.' + tm + '-state-active')
-            .not('.' + tm + '-state-disabled')
-            .addClass(tm + '-state-down');
-        })
-        .mouseup(function() {
-          button.removeClass(tm + '-state-down');
-        })
-        .hover(
-          function() {
-            button
-              .not('.' + tm + '-state-active')
-              .not('.' + tm + '-state-disabled')
-              .addClass(tm + '-state-hover');
-          },
-          function() {
-            button
-              .removeClass(tm + '-state-hover')
-              .removeClass(tm + '-state-down');
-          }
-        )
-        .appendTo(e);
+			prevButton = button;
+		}
 
-      prevButton = button;
-    }
+		return button;
+	}
 
-    return button;
-  }
+	// function added by Paul Wolbers 5-5-2012
+	function hideAgendaOverviewButton() {
+		$('.fc-content-paul').hide();
+		$('.fc-content').show();
+		$('.fc-button-paul').removeClass('fc-state-active');
+		$('.fc-header-left').show();
+	}
 
-  // function added by Paul Wolbers 5-5-2012
-  function hideAgendaOverviewButton() {
-    $('.fc-content-paul').hide();
-    $('.fc-content').show();
-    $('.fc-button-paul').removeClass('fc-state-active');
-    $('.fc-header-left').show();
-  }
-  
   function renderSection(position) {
     var e = $("<td class='fc-header-" + position + "'/>");
     var buttonStr = options.header[position];
@@ -871,20 +866,14 @@ function Header(calendar, options) {
               prevButton = button;
             }
           }
-          if (buttonName == 'basicDay') {buttonsRightRendered = true;} // added by Paul Wolbers 5-5-2012
         });
-        if(!options.agendaUrl) {  // added by Paul Wolbers 5-5-2012
-          if (prevButton) {
-            prevButton.addClass(tm + '-corner-right');
-          }
-        }
       });
     }
-    // added by Paul Wolbers 5-5-2012
-    if(options.agendaUrl && buttonsRightRendered) {
-      button = addAgendaOverviewButton(tm, e);
-      button.addClass(tm + '-corner-right');
-    }
+		// added by Paul Wolbers 5-5-2012
+		if(options.showAgendaButton && position == 'right') {
+			button = addAgendaOverviewButton(tm, e);
+			button.addClass(tm + '-corner-right');
+		}
 
     return e;
   }
